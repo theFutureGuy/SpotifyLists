@@ -19,3 +19,13 @@ class pongGame:
         else:
             self.window = None
             
+def draw(self):
+        self.window.fill(0)
+
+        pygame.draw.rect(self.window, (255, 255, 255),
+                         (5, self.y1, 10, self.paddle_length))
+        pygame.draw.rect(self.window, (255, 255, 255),
+                         (self.w-15, self.y2, 10, self.paddle_length))
+        pygame.draw.circle(self.window, (255, 255, 255),
+                           (self.xball, self.yball), 5)
+        pygame.display.flip()
