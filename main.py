@@ -69,6 +69,22 @@ def get_playlist_tracks(playlist_id: str) -> List[str]:
         offset += len(results["items"])
     return tracks
 
+def get_and_save_liked_tracks(user_id: str):
+    liked_tracks = set()
+    offset = 0
+    while True:
+        results = sp.current_user_saved_tracks(limit=50, offset=offset)
+        if not results["items"]:
+            break
+        liked_tracks.update([item["track"]["id"] for item in results["items"]])
+        offset += len(results["items"])
+
+    with sqlite3.connect("playlists.db") as conn:
+        cursor = conn.cursor()
+        create_tables_if_not_exists(table='liked_tracks')
+        cursor.executemany("REPLACE INTO liked_tracks (user_id, track_id) VALUES (?, ?)",
+                           [(user_id, track_id) for track_id in liked_tracks])
+        conn.commit()
 
 
 
