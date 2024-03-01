@@ -98,6 +98,21 @@ def display_playlist_tracks(playlist_id: str, user_id: str) -> None:
         heart_symbol = "<3" if track_id in liked_track_ids else ""
         print(f"{idx + 1}. {track['name']} - {track['artists'][0]['name']} {heart_symbol}")
 
+def save_playlists_to_db(playlists: List[dict], user_id: str):
+    with sqlite3.connect("playlists.db") as conn:
+        cursor = conn.cursor()
+        create_tables_if_not_exists(table='plalylists')
+        cursor.executemany("REPLACE INTO playlists (id, name, user_id) VALUES (?, ?, ?)",
+                           [(pl["id"], pl["name"], user_id) for pl in playlists])
+
+        create_tables_if_not_exists(table='playlist_tracks')
+        for pl in playlists:
+            tracks = get_playlist_tracks(pl["id"])
+            cursor.executemany("REPLACE INTO playlist_tracks (playlist_id, track_id) VALUES (?, ?)",
+                               [(pl["id"], track_id) for track_id in tracks])
+
+        conn.commit()
+
 def main():
     print("Welcome to Spotify Playlist Generator!")
     user_id = SPOTIFY_USERNAME
